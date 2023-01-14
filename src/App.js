@@ -6,6 +6,8 @@ import { Department } from './Department';
 import { Employee } from './Employee';
 import { BrowserRouter, Routes, Route , NavLink } from 'react-router-dom';
 import Trasactions from './Transactions';
+import Category from './Category';
+import Login from './Login';
 
 function App() {
   return (
@@ -23,12 +25,12 @@ function App() {
               </NavLink>
             </li>
             <li className="nav-item m-1">
-              <NavLink className="btn btn-light btn-outline-primary" to="/department">
+              <NavLink className="btn btn-light btn-outline-primary" to="/category">
                 Categories
               </NavLink>
             </li>
             <li className="nav-item m-1">
-              <NavLink className="btn btn-light btn-outline-primary" to="/employee">
+              <NavLink className="btn btn-light btn-outline-primary" to="/transactions">
                 Transactions
               </NavLink>
             </li>
@@ -36,9 +38,9 @@ function App() {
         </nav>
 
         <Routes>
-          <Route path='/home' element={<Home/>}></Route>
-          <Route path='/department' element={<Department/>}></Route>
-          <Route path='/employee' element={<Trasactions/>}></Route>
+          <Route path='/home' element={<Login/>}></Route>
+          <Route path='/category' element={<Category/>}></Route>
+          <Route path='/transactions' element={<Trasactions/>}></Route>
         </Routes>
       </div>
     </BrowserRouter>

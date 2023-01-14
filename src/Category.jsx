@@ -2,7 +2,7 @@ import React from 'react'
 import { useEffect } from 'react';
 import { useState } from 'react';
 
-export default function Transactions() {
+export default function Category() {
 
 
     const [modalTitle, setModalTitle] = useState("");
@@ -13,10 +13,6 @@ export default function Transactions() {
     const [Category,setCategory]= useState();
     const [IsRecurring, setRecurring] = useState();
     const [transactions,setTransactions]= useState([]);
-    const [categories,setCategories]= useState([]);
-    
-
-    var times= ["1:00", "2:00", "3:00"]
 
 
    useEffect(() => {
@@ -26,23 +22,11 @@ export default function Transactions() {
         setTransactions(data);
         console.log(data)
     });
-
-    fetch('http://localhost:5130/getCategories')
-    .then(response => response.json())
-    .then(cat => {
-        setCategories(cat);
-        console.log(cat)
-    });
-
-
    },[])
 
-   
-   
-
    function addClick() {
-    setModalTitle("Add Transactions")
-    setTransactionId(0);
+    setModalTitle("Add Category")
+    setTransactionId();
     setAmount();
     setType();
     setNote();
@@ -50,8 +34,6 @@ export default function Transactions() {
     setRecurring();
 
 }
-
-
 
 
 function editClick(tr) {
@@ -68,15 +50,15 @@ function editClick(tr) {
 }
 
 
-// function createClick() {
-//     setTransactionId();
-//     setAmount();
-//     setType();
-//     setNote();
-//     setCategory();
-//     setRecurring();
+function createClick() {
+    setTransactionId(0);
+    setAmount(0);
+    setType();
+    setNote();
+    setCategory();
+    setRecurring();
 
-// }
+}
    
 function isRecurring(value){
     if (value == true) {
@@ -111,21 +93,27 @@ function createClick() {
     console.log(txt);
     
 
-    // fetch('http://localhost:5130/postTransactions', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Accept': 'application/json',
-    //         'Content-Type': 'application/json'
-    //     },
-    //     body: txt
-    // })
-    //     .then(res => res.json())
-    //     .then((result) => {
-    //         alert(result);
-    //         window.location.reload();
-    //     }, (error) => {
-    //         alert('Failed');
-    //     })
+    fetch('http://localhost:5130/postTransactions', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body:txt = JSON.stringify({
+            name: Amount,
+            type: Type,
+            category: Category,
+            note: Note,
+            is_recurring: IsRecurring
+        })
+    })
+        .then(res => res.json())
+        .then((result) => {
+            alert(result);
+            window.location.reload();
+        }, (error) => {
+            alert('Failed');
+        })
 
     }
     
@@ -171,19 +159,19 @@ function createClick() {
                     data-bs-toggle="modal"
                     data-bs-target="#exampleModal"
                     onClick={() => addClick()}>
-                    Add Transactions
+                    Add Category
                 </button>
                 <table className="table table-striped">
                     <thead>
                         <tr>
                             <th>
-                                Transaction Id
-                            </th>
-                            <th>
-                                Amount
+                                Id
                             </th>
                             <th>
                                 Type
+                            </th>
+                            <th>
+                                Name
                             </th>
                             <th>
                                 Category
@@ -272,16 +260,15 @@ function createClick() {
                                             </div>
                                             </div>
                                         
-                                    </div>
+                                        </div>
 
                                         <div className="input-group mb-3">
                                             <label for="cars">Choose a car:</label>
-                                            <select onChange={e=>setCategory(e.target.value)}>
-                                                {categories.map(cat => {
-                                                return (
-                                                    <option value={cat.id}> {cat.name} </option>
-                                                )
-                                                })}
+                                            <select name="cars" id="cars">
+                                                <option value="volvo">Volvo</option>
+                                                <option value="saab">Saab</option>
+                                                <option value="opel">Opel</option>
+                                                <option value="audi">Audi</option>
                                             </select>
                                             
                                         </div>
