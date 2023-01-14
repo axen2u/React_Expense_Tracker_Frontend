@@ -5,6 +5,7 @@ import { Home } from './Home';
 import { Department } from './Department';
 import { Employee } from './Employee';
 import { BrowserRouter, Routes, Route , NavLink } from 'react-router-dom';
+import Trasactions from './Transactions';
 
 function App() {
   return (
@@ -37,7 +38,7 @@ function App() {
         <Routes>
           <Route path='/home' element={<Home/>}></Route>
           <Route path='/department' element={<Department/>}></Route>
-          <Route path='/employee' element={<Employee/>}></Route>
+          <Route path='/employee' element={<Trasactions/>}></Route>
         </Routes>
       </div>
     </BrowserRouter>

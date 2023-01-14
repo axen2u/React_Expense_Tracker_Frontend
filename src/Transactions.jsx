@@ -1,211 +1,122 @@
-import React, { Component } from 'react';
-import { variables } from './Variables.js';
-// import React, { useState } from 'react';
+import React from 'react'
+import { useEffect } from 'react';
+import { useState } from 'react';
 
-export class Employee extends Component {
+export default function Transactions() {
+
+
+    const [modalTitle, setModalTitle] = useState("");
+    const [transactionId,setTransactionId]= useState();
+    const [Amount,setAmount]= useState();
+    const [Type,setType]= useState();
+    const [Note,setNote]= useState();
+    const [Category,setCategory]= useState();
+    const [IsRecurring, setRecurring] = useState();
+    const [transactions,setTransactions]= useState([]);
+
+
+   useEffect(() => {
+    fetch('http://localhost:5130/getTransactions')
+    .then(response => response.json())
+    .then(data => {
+        setTransactions(data);
+        console.log(data)
+    });
+   },[])
+
+   function addClick() {
+    setModalTitle("Add Transactions")
+    setTransactionId(0);
+    setAmount(0);
+    setType();
+    setNote();
+    setCategory();
+    setRecurring();
+
+}
+
+
+function editClick(tr) {
+    setModalTitle("Edit Transactions")
+    setTransactionId(tr.TransactionId);
+    setAmount(tr.Amount);
+    setType(tr.Type);
+    setNote(tr.Note);
+    setCategory(tr.Category);
+    setRecurring(tr.IsRecurring);
+
+}
+
+
+function createClick() {
+    setTransactionId(0);
+    setAmount(0);
+    setType();
+    setNote();
+    setCategory();
+    setRecurring();
+
+}
+   
+function isRecurring(value){
+    if (value == true) {
+        setRecurring(1)
+    }else{
+        setRecurring(0)
+    }
+    // console.log("this is",IsRecurring)
+}
+
+function SetType(value){
+    console.log("this is",value)
+    if (value == "1") {
+        setType(1)
+    }else{
+        setType(0)
+    }
+    console.log("this is",Type)
+}
+
+function createClick() {
 
     
+    var txt = JSON.stringify({
+        amount: Amount,
+        type: Type,
+        category: Category,
+        note: Note,
+        is_recurring: IsRecurring
+    })
 
-    constructor(props) {
-        super(props);
+    console.log(txt);
+    
 
-        this.state = {
-            departments: [],
-            employees: [],
-            modalTitle: "",
-            Amount: "",
-            TransactionId: 0,
-            IsRecurringVal: "",
-            IsRecurring: "",
-            Category: "",
-            Type: "",
-            Note: "",
-            PhotoPath: variables.PHOTO_URL
-        }
-    }
-
-    refreshList() {
-
-        fetch('http://localhost:5130/getTransactions')
-            .then(response => response.json())
-            .then(data => {
-                this.setState({ employees: data });
-                console.log(data)
-            });
-
-        // fetch(variables.API_URL + 'department/getDepartment')
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         this.setState({ departments: data });
-        //     });
-    }
-
-    componentDidMount() {
-        this.refreshList();
-    }
-
-    changeIsRecurring = (e) => {
-        this.setState({ IsRecurring: e.target.checked});
-        
-        console.log(e.target.checked);
-        console.log(this.state.IsRecurring);
-    }
-
-
-    // changeIsRecurringVal(IsRecuring){
-
-    // }
-
-
-    // test (e) {
-    //     console.log()
-    // }
-
-    changeDepartment = (e) => {
-        this.setState({ Department: e.target.value });
-    }
-    changeDateOfJoining = (e) => {
-        this.setState({ DateOfJoining: e.target.value });
-    }
-
-    changeAmount= (e) => {
-        this.setState({ Amount: e.target.value });
-        console.log(e.target.value)
-    }
-
-
-    addClick() {
-        this.setState({
-            modalTitle: "Add Transactions",
-            id: 0,
-            type: "",
-            category: "",
-            note: "",
-            is_reccuring: ""
-        });
-    }
-    editClick(edtTr) {
-        debugger;
-        this.setState({
-            modalTitle: "Edit Transactions",
-            TransactionId: edtTr.TransactionId,
-            Type: edtTr.Type,
-            Category: edtTr.Category,
-            Note: edtTr.note,
-            IsRecurring: edtTr.IsRecurring
-        });
-    }
-
-    createClick() {
-
-        console.log(this.state.Amount);
-
-        fetch('http://localhost:5130/postTransactions', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                Amount: this.state.Amount,
-                Type: this.state.Type,
-                Category: this.state.Category,
-                Note: this.state.Note,
-                IsRecurring: this.state.IsRecurring
-            })
+    fetch('http://localhost:5130/postTransactions', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: txt
+    })
+        .then(res => res.json())
+        .then((result) => {
+            alert(result);
+            window.location.reload();
+        }, (error) => {
+            alert('Failed');
         })
-            .then(res => res.json())
-            .then((result) => {
-                alert(result);
-                this.refreshList();
-            }, (error) => {
-                alert('Failed');
-            })
-    }
+}   
+    
 
-
-    updateClick() {
-        fetch(variables.API_URL + 'employee/updateemployee', {
-            method: 'PUT',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                TransactionId: this.state.TransactionId,
-                EmployeeName: this.state.EmployeeName,
-                Department: this.state.Department,
-                DateOfJoining: this.state.DateOfJoining,
-                PhotoFileName: this.state.PhotoFileName
-            })
-        })
-            .then(res => res.json())
-            .then((result) => {
-                alert(result);
-                this.refreshList();
-            }, (error) => {
-                alert('Failed');
-            })
-    }
-
-    deleteClick(id) {
-        if (window.confirm('Are you sure?')) {
-            fetch(variables.API_URL + 'employee/' + id, {
-                method: 'DELETE',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(res => res.json())
-                .then((result) => {
-                    alert(result);
-                    this.refreshList();
-                }, (error) => {
-                    alert('Failed');
-                })
-        }
-    }
-
-    imageUpload = (e) => {
-        e.preventDefault();
-
-        const formData = new FormData();
-        formData.append("file", e.target.files[0], e.target.files[0].name);
-
-        fetch(variables.API_URL + 'employee/savefile', {
-            method: 'POST',
-            body: formData
-        })
-            .then(res => res.json())
-            .then(data => {
-                this.setState({ PhotoFileName: data });
-            })
-    }
-
-    render() {
-        const {
-            departments,
-            employees,
-            modalTitle,
-            EmployeeId,
-            Amount,
-            type,
-            Category,
-            Note,
-            IsRecurring,
-            IsRecurringVal,
-            PhotoFileName
-        } = this.state;
-
-        return (
-            <div>
+  return (
+    <div>
 
                 <button type="button"
                     className="btn btn-primary m-2 float-end"
                     data-bs-toggle="modal"
                     data-bs-target="#exampleModal"
-                    onClick={() => this.addClick()}>
+                    onClick={() => addClick()}>
                     Add Transactions
                 </button>
                 <table className="table table-striped">
@@ -235,20 +146,20 @@ export class Employee extends Component {
                         </tr>
                     </thead>
                     <tbody>
-                        {employees.map(emp =>
-                            <tr key={emp.TransactionId}>
-                                <td>{emp.TransactionId}</td>
-                                <td>{emp.Amount}</td>
-                                <td>{emp.Type}</td>
-                                <td>{emp.Category}</td>
-                                <td>{emp.Note}</td>
-                                <td>{emp.IsRecurring}</td>
+                        {transactions.map(tr =>
+                            <tr key={tr.TransactionId}>
+                                <td>{tr.TransactionId}</td>
+                                <td>{tr.Amount}</td>
+                                <td>{tr.Type}</td>
+                                <td>{tr.Category}</td>
+                                <td>{tr.Note}</td>
+                                <td>{tr.IsRecurring}</td>
                                 <td>
                                     <button type="button"
                                         className="btn btn-light mr-1"
                                         data-bs-toggle="modal"
                                         data-bs-target="#exampleModal"
-                                        onClick={() => this.editClick(emp)}>
+                                        onClick={() => editClick(tr)}>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
                                             <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                                             <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
@@ -257,7 +168,7 @@ export class Employee extends Component {
 
                                     <button type="button"
                                         className="btn btn-light mr-1"
-                                        onClick={() => this.deleteClick(emp.TransactionId)}>
+                                        onClick={() => this.deleteClick(tr.TransactionId)}>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash-fill" viewBox="0 0 16 16">
                                             <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
                                         </svg>
@@ -286,29 +197,51 @@ export class Employee extends Component {
                                         <div className="input-group mb-3">
                                             <span className="input-group-text">Amount</span>
                                             <input type="text" className="form-control"
-                                                 onChange={this.changeAmount}/>
+                                                // value={amount}
+                                                 onChange={e=>setAmount(e.target.value)}
+                                                 />
                                         </div>
 
+                                        <div className="input-group">
+                                        <label for="input-type">Type:</label>
+                                        <div id="input-type" class="flex-row">
+                                            <div class="col-sm-6">
+                                                <label class="radio-inline">
+                                                    <input name="account_type" id="input-type-expense" value="1" type="radio" onChange={e=>SetType(e.target.value)}
+                                                    /> Expense
+                                                </label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label class="radio-inline">
+                                                    <input name="account_type" id="input-type-income" value="2" type="radio" onChange={e=>SetType(e.target.value)} />Income
+                                                </label>
+                                            </div>
+                                            </div>
+                                        
+                                    </div>
 
                                         <div className="input-group mb-3">
                                             <span className="input-group-text">Category</span>
                                             <input type="text" className="form-control"
-                                                value={Category}
-                                                onChange={this.changeEmployeeName} />
+                                                // value={category}
+                                                onChange={e=>setCategory(e.target.value)}
+                                                />
                                         </div>
 
                                         <div className="input-group mb-3">
                                             <span className="input-group-text">Note</span>
                                             <input type="text" className="form-control"
-                                                value={Note}
-                                                onChange={this.changeEmployeeName} />
+                                                // value={note}
+                                                onChange={e=>setNote(e.target.value)} 
+                                                />
                                         </div>
 
                                         <div className="form-check">
                                             <label class="form-check-label" for="exampleCheck1">Recurring Transaction</label>
                                             <input type="checkbox" className="form-check-input"
-                                                value={IsRecurring}
-                                                onChange={this.changeIsRecurring} />
+                                                // value={isRecurring}
+                                                onChange={e=>isRecurring(e.target.checked)}
+                                                />
                                         </div>
                                         
 
@@ -329,14 +262,14 @@ export class Employee extends Component {
                                     </div> */}
                                 </div>
 
-                                {EmployeeId === 0 ?
+                                {transactionId === 0 ?
                                     <button type="button"
                                         className="btn btn-primary float-start"
-                                        onClick={() => this.createClick()}
+                                        onClick={() => createClick()}
                                     >Create</button>
                                     : null}
 
-                                {EmployeeId !== 0 ?
+                                {transactionId !== 0 ?
                                     <button type="button"
                                         className="btn btn-primary float-start"
                                         onClick={() => this.updateClick()}
@@ -348,6 +281,5 @@ export class Employee extends Component {
                     </div>
                 </div>
             </div>
-        )
-    }
+  )
 }
