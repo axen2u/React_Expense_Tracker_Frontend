@@ -181,6 +181,12 @@ function createClick() {
 }   
 
 
+function catSel(y){
+   return categories.find(x=> x.id === y).name
+}
+
+
+
 function deleteClick() {
 
 
@@ -254,9 +260,9 @@ function deleteClick() {
                                 <td>{tr.TransactionId}</td>
                                 <td>{tr.Amount}</td>
                                 <td>{tr.Type == 1 ? "Expense"  : "Income"}</td>
-                                <td>{tr.Category}</td>
+                                <td>{catSel(tr.Category)}</td>
                                 <td>{tr.Note}</td>
-                                <td>{tr.IsRecurring}</td>
+                                <td>{tr.IsRecurring == 1 ? "Yes"  : "No" }</td>
                                 <td>
                                     <button type="button"
                                         className="btn btn-light mr-1"

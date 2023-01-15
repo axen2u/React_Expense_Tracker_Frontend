@@ -63,8 +63,8 @@ export default function (props) {
             .then(res => res.json())
             .then((result) => {
                 // localStorage.setItem('items', JSON.stringify(items));
-                console.log(result);
-                // window.location.reload();
+                alert(result);
+                window.location.reload();
             }, (error) => {
                 alert('Failed');
             })
@@ -157,7 +157,7 @@ export default function (props) {
             />
           </div>
           <div className="d-grid gap-2 mt-3">
-            <button type="button" className="btn btn-primary">
+            <button type="button" className="btn btn-primary" onClick={()=>registerClick()}>
               Submit
             </button>
           </div>
