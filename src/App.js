@@ -1,9 +1,5 @@
-import logo from './logo.svg';
 import './App.css';
 
-import { Home } from './Home';
-import { Department } from './Department';
-import { Employee } from './Employee';
 import { BrowserRouter, Routes, Route , NavLink } from 'react-router-dom';
 import Trasactions from './Transactions';
 import Category from './Category';

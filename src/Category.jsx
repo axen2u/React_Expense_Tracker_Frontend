@@ -6,88 +6,85 @@ export default function Category() {
 
 
     const [modalTitle, setModalTitle] = useState("");
-    const [TransactionId,setTransactionId]= useState();
-    const [Amount,setAmount]= useState();
+    const [CategoryId,setCategoryId]= useState([]);
+    const [Name,setName]= useState();
+    const [Budget,setBudget]= useState();
     const [Type,setType]= useState();
     const [Note,setNote]= useState();
-    const [Category,setCategory]= useState();
-    const [IsRecurring, setRecurring] = useState();
-    const [transactions,setTransactions]= useState([]);
+    // const [Category,setCategory]= useState();
+    const [sum, setSum] = useState();
+    const [categories,setCategories]= useState([]);
+    const [UserId,setUserId]= useState();
 
 
-   useEffect(() => {
-    fetch('http://localhost:5130/getTransactions')
-    .then(response => response.json())
-    .then(data => {
-        setTransactions(data);
-        console.log(data)
-    });
-   },[])
+    useEffect(() => {
 
-   function addClick() {
-    setModalTitle("Add Category")
-    setTransactionId();
-    setAmount();
-    setType();
-    setNote();
-    setCategory();
-    setRecurring();
+        var session = localStorage.getItem("session");
+        console.log("Session",session);
+        setUserId(session);
+    
+    
+        fetch('http://localhost:5130/getCategories',{
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "user_id": 4,
+              })
+        })
+        .then(response => response.json())
+        .then(cat => {
+            setCategories(cat);
+            console.log(cat)
+        });
 
-}
+        fetch('http://localhost:5130/getBudgets',{
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "user_id": 4,
+              })
+        })
+        .then(response => response.json())
+        .then(budget => {
+            setSum(budget);
+            console.log(budget)
+        });
+    
+       },[])
 
 
 function editClick(tr) {
-    console.log(tr.TransactionId);
-    setModalTitle("Edit Transactions")
-    setTransactionId(tr.TransactionId);
-    setAmount(tr.Amount);
-    setType(tr.Type);
-    setNote(tr.Note);
-    setCategory(tr.Category);
-    setRecurring(tr.IsRecurring);
+    console.log(tr.id);
+    setModalTitle("Edit Category")
+    setBudget(tr.budget);
+    setName(tr.name);
+    setType(tr.type);
     
 
 }
 
 
-function createClick() {
-    setTransactionId(0);
-    setAmount(0);
+function addClick() {
+    setModalTitle("Add Category")
+    setBudget();
+    setName();
     setType();
-    setNote();
-    setCategory();
-    setRecurring();
 
-}
-   
-function isRecurring(value){
-    if (value == true) {
-        setRecurring(1)
-    }else{
-        setRecurring(0)
-    }
-    // console.log("this is",IsRecurring)
-}
-
-function SetType(value){
-    console.log("this is",value)
-    if (value == "1") {
-        setType(1)
-    }else{
-        setType(0)
-    }
-    console.log("this is",Type)
 }
 
 function createClick() {
 
     
     var txt = JSON.stringify({
-        amount: Amount,
-        type: Type,
+        budget: Budget,
+        name: Name,
         category: Category,
-        note: Note,
-        is_recurring: IsRecurring
     })
 
     console.log(txt);
@@ -99,13 +96,7 @@ function createClick() {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body:txt = JSON.stringify({
-            name: Amount,
-            type: Type,
-            category: Category,
-            note: Note,
-            is_recurring: IsRecurring
-        })
+        body:txt
     })
         .then(res => res.json())
         .then((result) => {
@@ -119,21 +110,21 @@ function createClick() {
     
     function updateClick() {
 
+        setModalTitle("")
 
         var uptxt = JSON.stringify({
-            transactionId:TransactionId,
-            amount: Amount,
-            type: Type,
-            category: Category,
-            note: Note,
-            is_recurring: IsRecurring
+            "id": CategoryId,
+            "user_id": UserId,
+            "type": Type,
+            "name": Name,
+            "budget": Budget
         })
     
         console.log(uptxt);
         
     
         fetch('http://localhost:5130/updateTransactions', {
-            method: 'PUT',
+            method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
@@ -158,9 +149,11 @@ function createClick() {
                     className="btn btn-primary m-2 float-end"
                     data-bs-toggle="modal"
                     data-bs-target="#exampleModal"
-                    onClick={() => addClick()}>
+                    onClick={() => addClick()}
+                    >
                     Add Category
                 </button>
+                <h2>Categories</h2>
                 <table className="table table-striped">
                     <thead>
                         <tr>
@@ -168,19 +161,13 @@ function createClick() {
                                 Id
                             </th>
                             <th>
-                                Type
-                            </th>
-                            <th>
                                 Name
                             </th>
                             <th>
-                                Category
+                                Budget
                             </th>
                             <th>
-                                Note
-                            </th>
-                            <th>
-                                IsRecuring
+                                Type
                             </th>
                             <th>
                                 Options
@@ -188,35 +175,53 @@ function createClick() {
                         </tr>
                     </thead>
                     <tbody>
-                        {transactions.map(tr =>
-                            <tr key={tr.TransactionId}>
-                                <td>{tr.TransactionId}</td>
-                                <td>{tr.Amount}</td>
-                                <td>{tr.Type}</td>
-                                <td>{tr.Category}</td>
-                                <td>{tr.Note}</td>
-                                <td>{tr.IsRecurring}</td>
+                        {categories.map(tr =>
+                            <tr key={tr.id}>
+                                <td>{tr.id}</td>
+                                <td>{tr.name}</td>
+                                <td>{tr.budget}</td>
+                                <td>{tr.type == 1 ? "Expense"  : "Income"}</td>
                                 <td>
                                     <button type="button"
                                         className="btn btn-light mr-1"
                                         data-bs-toggle="modal"
                                         data-bs-target="#exampleModal"
-                                        onClick={() => editClick(tr)}>
+                                        onClick={() => editClick(tr)}
+                                        >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
                                             <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                                             <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
                                         </svg>
                                     </button>
 
-                                    <button type="button"
-                                        className="btn btn-light mr-1"
-                                        onClick={() => this.deleteClick(tr.TransactionId)}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash-fill" viewBox="0 0 16 16">
-                                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
-                                        </svg>
-                                    </button>
-
+                            
                                 </td>
+                            </tr>
+                            
+                        )}
+                    </tbody>
+                </table>
+                <div></div><h2>Summary</h2>
+                <table className="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>
+                                Category
+                            </th>
+                            <th>
+                                Budget
+                            </th>
+                            <th>
+                                Total
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {sum.map(tr =>
+                            <tr key={tr.id}>
+                                <td>{tr.name}</td>
+                                <td>{tr.budget}</td>
+                                <td style={tr.total_transactions <= tr.budget ? { color: 'green'} : { color: 'red' }}>{tr.total_transactions}</td>
                             </tr>
                         )}
                     </tbody>
@@ -236,11 +241,19 @@ function createClick() {
 
                                     <div className="p-2 w-50 bd-highlight">
 
-                                        <div className="input-group mb-3">
-                                            <span className="input-group-text">Amount</span>
+                                    <div className="input-group mb-3">
+                                            <span className="input-group-text">Name</span>
                                             <input type="text" className="form-control"
-                                                value={Amount}
-                                                 onChange={e=>setAmount(e.target.value)}
+                                                value={Name}
+                                                onChange={e=>setName(e.target.value)} 
+                                                />
+                                        </div>
+
+                                        <div className="input-group mb-3">
+                                            <span className="input-group-text">Budget</span>
+                                            <input type="text" className="form-control"
+                                                value={Budget}
+                                                 onChange={e=>setBudget(e.target.value)}
                                                  />
                                         </div>
 
@@ -249,72 +262,34 @@ function createClick() {
                                         <div id="input-type" class="flex-row">
                                             <div class="col-sm-6">
                                                 <label class="radio-inline">
-                                                    <input name="account_type" id="input-type-expense" value="1" type="radio" onChange={e=>SetType(e.target.value)}
+                                                    <input name="account_type" id="input-type-expense" value="1" type="radio" 
+                                                    onChange={e=>setType(e.target.value)}
                                                     /> Expense
                                                 </label>
                                             </div>
                                             <div class="col-sm-6">
                                                 <label class="radio-inline">
-                                                    <input name="account_type" id="input-type-income" value="2" type="radio" onChange={e=>SetType(e.target.value)} />Income
+                                                    <input name="account_type" id="input-type-income" value="2" type="radio" 
+                                                    onChange={e=>setType(e.target.value)} 
+                                                    />Income
                                                 </label>
                                             </div>
                                             </div>
                                         
                                         </div>
 
-                                        <div className="input-group mb-3">
-                                            <label for="cars">Choose a car:</label>
-                                            <select name="cars" id="cars">
-                                                <option value="volvo">Volvo</option>
-                                                <option value="saab">Saab</option>
-                                                <option value="opel">Opel</option>
-                                                <option value="audi">Audi</option>
-                                            </select>
-                                            
-                                        </div>
-
-                                        <div className="input-group mb-3">
-                                            <span className="input-group-text">Note</span>
-                                            <input type="text" className="form-control"
-                                                value={Note}
-                                                onChange={e=>setNote(e.target.value)} 
-                                                />
-                                        </div>
-
-                                        <div className="form-check">
-                                            <label class="form-check-label" for="exampleCheck1">Recurring Transaction</label>
-                                            <input type="checkbox" className="form-check-input"
-                                                value={IsRecurring}
-                                                onChange={e=>isRecurring(e.target.checked)}
-                                                />
-                                        </div>
-                                        
-
-                                        {/* <div className="input-group mb-3">
-                                            <span className="input-group-text">DOJ</span>
-                                            <input type="date" className="form-control"
-                                                value={DateOfJoining}
-                                                onChange={this.changeDateOfJoining} />
-                                        </div> */}
-
-
                                     </div>
-                                    {/* <div className="p-2 w-50 bd-highlight">
-                                        <img width="250px" height="250px"
-                                            src={PhotoPath + PhotoFileName} />
-                                        <input className="m-2" type="file" 
-                                        onChange={this.imageUpload} />
-                                    </div> */}
+                                  
                                 </div>
 
-                                {TransactionId === 0 ?
+                                {CategoryId === 0 ?
                                     <button type="button"
                                         className="btn btn-primary float-start"
                                         onClick={() => createClick()}
                                     >Create</button>
                                     : null}
 
-                                {TransactionId !== 0 ?
+                                {CategoryId !== 0 ?
                                     <button type="button"
                                         className="btn btn-primary float-start"
                                         onClick={() => updateClick()}

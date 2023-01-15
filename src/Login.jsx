@@ -12,16 +12,53 @@ export default function (props) {
 
  function loginClick() {
 
+    var txt = JSON.stringify({
+        "id": 0,
+        "name": "string",
+        "email": Mail,
+        "password": Pass
+    })
+
+    console.log(txt);
+
+
     fetch('http://localhost:5130/login', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                email: Mail,
-                password: Pass,
+            body: txt
+        })
+            .then(res => res.json())
+            .then((result) => {
+                localStorage.setItem("session",result);
+                console.log(result);
+                // window.location.reload();
+            }, (error) => {
+                alert('Failed');
             })
+ }
+
+ function registerClick() {
+
+    var txt = JSON.stringify({
+        "id": 0,
+        "name": Name,
+        "email": Mail,
+        "password": Pass
+    })
+
+    console.log(txt);
+
+
+    fetch('http://localhost:5130/register', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: txt
         })
             .then(res => res.json())
             .then((result) => {
@@ -50,7 +87,7 @@ export default function (props) {
             <div className="form-group mt-3">
               <label>Email address</label>
               <input
-                type="email"
+                type="text"
                 className="form-control mt-1"
                 placeholder="Enter email"
                 onChange={e=>setMail(e.target.value)}
@@ -66,7 +103,7 @@ export default function (props) {
               />
             </div>
             <div className="d-grid gap-2 mt-3">
-              <button type="submit" className="btn btn-primary" onClick={loginClick()}>
+              <button type="button" className="btn btn-primary" onClick={()=>loginClick()}>
                 Submit
               </button>
             </div>
@@ -85,7 +122,7 @@ export default function (props) {
     <div className="Auth-form-container">
       <form className="Auth-form">
         <div className="Auth-form-content">
-          <h3 className="Auth-form-title">Sign In</h3>
+          <h3 className="Auth-form-title">Sign Up</h3>
           <div className="text-center">
             Already registered?{" "}
             <span className="link-primary" onClick={changeAuthMode}>
@@ -95,17 +132,19 @@ export default function (props) {
           <div className="form-group mt-3">
             <label>Full Name</label>
             <input
-              type="email"
+              type="text"
               className="form-control mt-1"
               placeholder="e.g Jane Doe"
+              onChange={e=>setName(e.target.value)}
             />
           </div>
           <div className="form-group mt-3">
             <label>Email address</label>
             <input
-              type="email"
+              type="text"
               className="form-control mt-1"
               placeholder="Email Address"
+              onChange={e=>setMail(e.target.value)}
             />
           </div>
           <div className="form-group mt-3">
@@ -114,10 +153,11 @@ export default function (props) {
               type="password"
               className="form-control mt-1"
               placeholder="Password"
+              onChange={e=>setPass(e.target.value)}
             />
           </div>
           <div className="d-grid gap-2 mt-3">
-            <button type="submit" className="btn btn-primary">
+            <button type="button" className="btn btn-primary">
               Submit
             </button>
           </div>

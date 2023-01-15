@@ -14,26 +14,51 @@ export default function Transactions() {
     const [IsRecurring, setRecurring] = useState();
     const [transactions,setTransactions]= useState([]);
     const [categories,setCategories]= useState([]);
+    const [UserId,setUserId]= useState();
     
 
-    var times= ["1:00", "2:00", "3:00"]
 
 
    useEffect(() => {
-    fetch('http://localhost:5130/getTransactions')
+
+    var session = localStorage.getItem("session");
+    console.log(session);
+    setUserId(session);
+
+    fetch('http://localhost:5130/getTransactions',{
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "user_id": 4
+          })
+    })
     .then(response => response.json())
     .then(data => {
         setTransactions(data);
         console.log(data)
     });
 
-    fetch('http://localhost:5130/getCategories')
+    fetch('http://localhost:5130/getCategories',{
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+
+            "user_id": 4,
+          })
+    })
     .then(response => response.json())
     .then(cat => {
         setCategories(cat);
         console.log(cat)
     });
 
+    
 
    },[])
 
@@ -68,15 +93,6 @@ function editClick(tr) {
 }
 
 
-// function createClick() {
-//     setTransactionId();
-//     setAmount();
-//     setType();
-//     setNote();
-//     setCategory();
-//     setRecurring();
-
-// }
    
 function isRecurring(value){
     if (value == true) {
@@ -101,6 +117,7 @@ function createClick() {
 
     
     var txt = JSON.stringify({
+        user_id:UserId,
         amount: Amount,
         type: Type,
         category: Category,
@@ -111,21 +128,21 @@ function createClick() {
     console.log(txt);
     
 
-    // fetch('http://localhost:5130/postTransactions', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Accept': 'application/json',
-    //         'Content-Type': 'application/json'
-    //     },
-    //     body: txt
-    // })
-    //     .then(res => res.json())
-    //     .then((result) => {
-    //         alert(result);
-    //         window.location.reload();
-    //     }, (error) => {
-    //         alert('Failed');
-    //     })
+    fetch('http://localhost:5130/postTransactions', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: txt
+    })
+        .then(res => res.json())
+        .then((result) => {
+            alert(result);
+            window.location.reload();
+        }, (error) => {
+            alert('Failed');
+        })
 
     }
     
@@ -133,7 +150,8 @@ function createClick() {
 
 
         var uptxt = JSON.stringify({
-            transactionId:TransactionId,
+            user_id:UserId,
+            id:TransactionId,
             amount: Amount,
             type: Type,
             category: Category,
@@ -145,7 +163,7 @@ function createClick() {
         
     
         fetch('http://localhost:5130/updateTransactions', {
-            method: 'PUT',
+            method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
@@ -161,6 +179,37 @@ function createClick() {
             })
 
 }   
+
+
+function deleteClick() {
+
+
+    var uptxt = JSON.stringify({
+        id:TransactionId,
+        
+    })
+
+    console.log(uptxt);
+    
+
+    fetch('http://localhost:5130/deleteTransaction', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: uptxt
+    })
+        .then(res => res.json())
+        .then((result) => {
+            alert(result);
+            window.location.reload();
+        }, (error) => {
+            alert('Failed');
+        })
+
+}
+
     
 
   return (
@@ -204,7 +253,7 @@ function createClick() {
                             <tr key={tr.TransactionId}>
                                 <td>{tr.TransactionId}</td>
                                 <td>{tr.Amount}</td>
-                                <td>{tr.Type}</td>
+                                <td>{tr.Type == 1 ? "Expense"  : "Income"}</td>
                                 <td>{tr.Category}</td>
                                 <td>{tr.Note}</td>
                                 <td>{tr.IsRecurring}</td>
@@ -222,7 +271,7 @@ function createClick() {
 
                                     <button type="button"
                                         className="btn btn-light mr-1"
-                                        onClick={() => this.deleteClick(tr.TransactionId)}>
+                                        onClick={() => deleteClick(tr.TransactionId)}>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash-fill" viewBox="0 0 16 16">
                                             <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
                                         </svg>
@@ -274,16 +323,16 @@ function createClick() {
                                         
                                     </div>
 
-                                        <div className="input-group mb-3">
-                                            <label for="cars">Choose a car:</label>
-                                            <select onChange={e=>setCategory(e.target.value)}>
+                                        <div className=" input-group mb-3">
+                                            <label class = "p-2" for="cat">Category: </label>
+                                            <div class = "p-2" ><select onChange={e=>setCategory(e.target.value)}>
                                                 {categories.map(cat => {
                                                 return (
                                                     <option value={cat.id}> {cat.name} </option>
                                                 )
                                                 })}
                                             </select>
-                                            
+                                            </div>
                                         </div>
 
                                         <div className="input-group mb-3">
@@ -303,21 +352,10 @@ function createClick() {
                                         </div>
                                         
 
-                                        {/* <div className="input-group mb-3">
-                                            <span className="input-group-text">DOJ</span>
-                                            <input type="date" className="form-control"
-                                                value={DateOfJoining}
-                                                onChange={this.changeDateOfJoining} />
-                                        </div> */}
 
 
                                     </div>
-                                    {/* <div className="p-2 w-50 bd-highlight">
-                                        <img width="250px" height="250px"
-                                            src={PhotoPath + PhotoFileName} />
-                                        <input className="m-2" type="file" 
-                                        onChange={this.imageUpload} />
-                                    </div> */}
+                                  
                                 </div>
 
                                 {TransactionId === 0 ?
