@@ -12,7 +12,7 @@ export default function Category() {
     const [Type,setType]= useState();
     const [Note,setNote]= useState();
     // const [Category,setCategory]= useState();
-    const [sum, setSum] = useState();
+    const [sum, setSum] = useState([]);
     const [categories,setCategories]= useState([]);
     const [UserId,setUserId]= useState();
 
